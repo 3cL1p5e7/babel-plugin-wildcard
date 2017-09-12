@@ -147,7 +147,7 @@ export default function (babel) {
                         // Special behavior if 'filterNames'
                         if (filterNames.length > 0) {
                             let importDeclaration = t.importDeclaration(
-                                [t.importDefaultSpecifier(
+                                [t.importNamespaceSpecifier(
                                     t.identifier(fancyName)
                                 )],
                                 t.stringLiteral(name)
@@ -158,7 +158,7 @@ export default function (babel) {
                         
                         // Generate temp. import declaration
                         let importDeclaration = t.importDeclaration(
-                            [t.importDefaultSpecifier(
+                            [t.importNamespaceSpecifier(
                                 id
                             )],
                             t.stringLiteral(name)
