@@ -10,6 +10,9 @@ export default function (babel) {
                 let node = path.node, dec;
                 var src = path.node.source.value;
 
+                const specifier = state.opts.namespaced ? t.importNamespaceSpecifier : t.importDefaultSpecifier;
+                state.opts.nostrip = state.opts.included;
+
                 // Don't do anything if not a relative path
                 // if if not a relative path then a module
                 if (src[0] !== "." && src[0] !== "/") return;
@@ -88,6 +91,16 @@ export default function (babel) {
                             // Check extension is of one of the aboves
                             if (exts.indexOf(_path.extname(r[i]).substring(1)) > -1) {
                                 files.push(r[i]);
+                            } else if (_fs.lstatSync(_path.join(dir, r[i])).isDirectory() && state.opts.included) {
+
+                                let rr = _fs.readdirSync(_path.join(dir, r[i]));
+                                for (var j = 0; j < rr.length; j++) {
+                                    // Check extension is of one of the aboves
+                                    if (exts.indexOf(_path.extname(rr[j]).substring(1)) > -1) {
+                                        files.push(_path.join(r[i], rr[j]));
+                                    }
+                                }
+
                             }
                         }
                     } catch(e) {
@@ -105,7 +118,12 @@ export default function (babel) {
                         var file = files[i];
                         
                         // Strip extension
-                        var fancyName = file.replace(/(?!^)\.[^.\s]+$/, "");
+                        var fancyName;
+                        if (state.opts.included) {
+                            fancyName = _path.basename(file).replace(/(?!^)\.[^.\s]+$/, "");
+                        } else {
+                            fancyName = file.replace(/(?!^)\.[^.\s]+$/, "");
+                        }
                         
                         // Handle dotfiles, remove prefix `.` in that case
                         if (fancyName[0] === ".") {
@@ -147,7 +165,7 @@ export default function (babel) {
                         // Special behavior if 'filterNames'
                         if (filterNames.length > 0) {
                             let importDeclaration = t.importDeclaration(
-                                [t.importNamespaceSpecifier(
+                                [specifier(
                                     t.identifier(fancyName)
                                 )],
                                 t.stringLiteral(name)
@@ -158,7 +176,7 @@ export default function (babel) {
                         
                         // Generate temp. import declaration
                         let importDeclaration = t.importDeclaration(
-                            [t.importNamespaceSpecifier(
+                            [specifier(
                                 id
                             )],
                             t.stringLiteral(name)

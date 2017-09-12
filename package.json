@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-namespace-wildcard",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "description": "`import` now works with directories. Fork of vihanb/babel-plugin-wildcard",
   "main": "lib/index.js",
   "scripts": {
